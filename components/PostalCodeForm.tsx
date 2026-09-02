@@ -55,7 +55,7 @@ export default function PostalCodeForm({ onSearch, loading, errorMessage }: Post
           disabled={loading}
         />
         <button type="submit" disabled={loading}>
-          {loading ? 'Searching…' : 'Find nearest post'}
+          {loading ? 'Searching…' : 'Find the nearest'}
         </button>
       </div>
 
