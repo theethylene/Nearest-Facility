@@ -62,37 +62,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Step 3: find the nearest post via Haversine distance.
-  let nearest = available[0];
-  let nearestDistanceKm = haversineDistanceKm(
-    userLocation.latitude,
-    userLocation.longitude,
-    nearest.latitude,
-    nearest.longitude
-  );
+  // Step 3: rank every available post by Haversine distance and keep the
+  // closest few, so the user has a fallback if the single nearest post is
+  // inconvenient (e.g. across a busy road, or simply full).
+  const RESULT_COUNT = 3;
 
-  for (const post of available.slice(1)) {
-    const distanceKm = haversineDistanceKm(
-      userLocation.latitude,
-      userLocation.longitude,
-      post.latitude,
-      post.longitude
-    );
-    if (distanceKm < nearestDistanceKm) {
-      nearest = post;
-      nearestDistanceKm = distanceKm;
-    }
-  }
+  const ranked = available
+    .map((post) => ({
+      id: post.id,
+      name: post.name,
+      address: post.address,
+      latitude: post.latitude,
+      longitude: post.longitude,
+      distanceKm:
+        Math.round(
+          haversineDistanceKm(userLocation.latitude, userLocation.longitude, post.latitude, post.longitude) * 100
+        ) / 100,
+    }))
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .slice(0, RESULT_COUNT);
 
   return NextResponse.json({
     userLocation,
-    nearestPost: {
-      id: nearest.id,
-      name: nearest.name,
-      address: nearest.address,
-      latitude: nearest.latitude,
-      longitude: nearest.longitude,
-      distanceKm: Math.round(nearestDistanceKm * 100) / 100,
-    },
+    results: ranked,
   });
 }

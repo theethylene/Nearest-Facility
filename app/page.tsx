@@ -21,7 +21,7 @@ type UserLocation = {
 
 type SearchResult = {
   userLocation: UserLocation;
-  nearestPost: NearestPost;
+  results: NearestPost[];
 };
 
 export default function Home() {
@@ -65,13 +65,22 @@ export default function Home() {
 
       <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
 
-      {result && (
+      {result && result.results.length > 0 && (
         <>
-          <ResultCard post={result.nearestPost} />
+          <div className="results-list">
+            {result.results.map((post, index) => (
+              <ResultCard key={post.id} post={post} rank={index} />
+            ))}
+          </div>
           <MapView
             userLocation={{ lat: result.userLocation.latitude, lng: result.userLocation.longitude }}
-            postLocation={{ lat: result.nearestPost.latitude, lng: result.nearestPost.longitude }}
-            postName={result.nearestPost.name}
+            posts={result.results.map((post) => ({
+              id: post.id,
+              name: post.name,
+              distanceKm: post.distanceKm,
+              lat: post.latitude,
+              lng: post.longitude,
+            }))}
           />
         </>
       )}
