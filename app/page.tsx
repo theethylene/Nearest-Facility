@@ -1,28 +1,80 @@
-import { supabase } from '@/lib/supabaseClient';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import PostalCodeForm from '@/components/PostalCodeForm';
+import ResultCard, { type NearestPost } from '@/components/ResultCard';
 
-export default async function Home() {
-  const { count, error } = await supabase
-    .from('health_posts')
-    .select('*', { count: 'exact', head: true });
+// Leaflet touches `window`, so the map can only render on the client.
+// next/dynamic with ssr:false keeps it out of the server-rendered HTML.
+const MapView = dynamic(() => import('@/components/MapView'), {
+  ssr: false,
+  loading: () => <div className="map-placeholder">Loading map…</div>,
+});
+
+type UserLocation = {
+  postalCode: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+};
+
+type SearchResult = {
+  userLocation: UserLocation;
+  nearestPost: NearestPost;
+};
+
+export default function Home() {
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [result, setResult] = useState<SearchResult | null>(null);
+
+  const handleSearch = async (postalCode: string) => {
+    setLoading(true);
+    setErrorMessage(null);
+    setResult(null);
+
+    try {
+      const response = await fetch('/api/nearest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postalCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(data.message ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      setResult(data as SearchResult);
+    } catch {
+      setErrorMessage('Something went wrong reaching the server. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main>
       <h1>Nearest Community Health Post</h1>
-      <p>Enter your postal code to find the nearest health post — coming in Phase One.</p>
-
-      <div className={`status ${error ? 'error' : ''}`}>
-        {error
-          ? `Supabase connection error: ${error.message}`
-          : `Supabase connected — ${count ?? 0} health post(s) loaded`}
-      </div>
-
-      <p className="note">
-        This is a Phase Zero infrastructure checkpoint: Next.js on Vercel, wired to a
-        Supabase database ready for the health post directory. Postal-code search,
-        the map, and distance calculation are built in Phase One.
+      <p className="intro">
+        Enter your 6-digit Singapore postal code to find the closest Community Health Post.
       </p>
+
+      <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
+
+      {result && (
+        <>
+          <ResultCard post={result.nearestPost} />
+          <MapView
+            userLocation={{ lat: result.userLocation.latitude, lng: result.userLocation.longitude }}
+            postLocation={{ lat: result.nearestPost.latitude, lng: result.nearestPost.longitude }}
+            postName={result.nearestPost.name}
+          />
+        </>
+      )}
     </main>
   );
 }
