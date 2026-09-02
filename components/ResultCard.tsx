@@ -7,9 +7,12 @@ export type NearestPost = {
   distanceKm: number;
 };
 
+export type ResultCategory = 'chp' | 'aac';
+
 type ResultCardProps = {
   post: NearestPost;
   rank: number; // 0 = nearest, 1 = second-nearest, etc.
+  category?: ResultCategory;
 };
 
 const RANK_LABEL: Record<number, string> = {
@@ -18,15 +21,18 @@ const RANK_LABEL: Record<number, string> = {
   2: '3rd closest',
 };
 
-export default function ResultCard({ post, rank }: ResultCardProps) {
+export default function ResultCard({ post, rank, category = 'chp' }: ResultCardProps) {
   const isPrimary = rank === 0;
-  const headingId = `result-heading-${post.id}`;
+  const headingId = `result-heading-${category}-${post.id}`;
+
+  const classNames = [
+    'result-card',
+    isPrimary ? 'result-card--primary' : 'result-card--alternate',
+    category === 'aac' ? 'result-card--aac' : 'result-card--chp',
+  ].join(' ');
 
   return (
-    <section
-      className={`result-card${isPrimary ? ' result-card--primary' : ' result-card--alternate'}`}
-      aria-labelledby={headingId}
-    >
+    <section className={classNames} aria-labelledby={headingId}>
       <span className="result-card__badge">{RANK_LABEL[rank] ?? `#${rank + 1}`}</span>
       <h2 id={headingId}>{post.name}</h2>
 

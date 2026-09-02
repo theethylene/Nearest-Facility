@@ -17,13 +17,17 @@ L.Icon.Default.mergeOptions({
 
 const userIcon = new L.Icon.Default();
 
-// A small numbered circle marker for each ranked result, so the map makes
-// it visually obvious which pin is the nearest post vs. the alternates.
-function rankIcon(rank: number) {
-  const color = rank === 0 ? '#1f7a4d' : '#6b7280';
+export type MarkerShape = 'circle' | 'diamond';
+
+// A small numbered marker for each ranked result, so the map makes it
+// visually obvious both which pin is nearest vs. an alternate, and which
+// category (shape) a pin belongs to.
+function rankIcon(rank: number, primaryColor: string, alternateColor: string, shape: MarkerShape) {
+  const color = rank === 0 ? primaryColor : alternateColor;
+  const shapeClass = shape === 'diamond' ? 'rank-marker--diamond' : 'rank-marker--circle';
   return L.divIcon({
-    className: 'rank-marker',
-    html: `<span style="background:${color}">${rank + 1}</span>`,
+    className: `rank-marker ${shapeClass}`,
+    html: `<span style="background:${color}"><b>${rank + 1}</b></span>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
@@ -32,7 +36,7 @@ function rankIcon(rank: number) {
 
 type LatLng = { lat: number; lng: number };
 
-type ResultPin = {
+export type ResultPin = {
   id: string;
   name: string;
   distanceKm: number;
@@ -40,31 +44,47 @@ type ResultPin = {
   lng: number;
 };
 
-type MapViewProps = {
-  userLocation: LatLng;
+export type MarkerCategory = {
+  key: string;
+  categoryLabel: string;
+  primaryColor: string;
+  alternateColor: string;
+  shape: MarkerShape;
   posts: ResultPin[];
 };
 
-function FitBounds({ userLocation, posts }: { userLocation: LatLng; posts: ResultPin[] }) {
+type MapViewProps = {
+  userLocation: LatLng;
+  categories: MarkerCategory[];
+};
+
+function FitBounds({ userLocation, categories }: { userLocation: LatLng; categories: MarkerCategory[] }) {
   const map = useMap();
 
   useEffect(() => {
     const points: [number, number][] = [
       [userLocation.lat, userLocation.lng],
-      ...posts.map((post): [number, number] => [post.lat, post.lng]),
+      ...categories.flatMap((category) => category.posts.map((post): [number, number] => [post.lat, post.lng])),
     ];
     const bounds = L.latLngBounds(points);
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
-  }, [map, userLocation, posts]);
+    // Re-fit whenever the set of plotted points changes; categories is a new
+    // array each render, so we track it by its flattened point count/coords.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, userLocation, JSON.stringify(categories.map((c) => c.posts.map((p) => [p.lat, p.lng])))]);
 
   return null;
 }
 
-export default function MapView({ userLocation, posts }: MapViewProps) {
+export default function MapView({ userLocation, categories }: MapViewProps) {
+  const totalPosts = categories.reduce((sum, category) => sum + category.posts.length, 0);
+  const labelParts = categories
+    .filter((category) => category.posts.length > 0)
+    .map((category) => `${category.posts.length} nearby ${category.categoryLabel}`);
   const label =
-    posts.length > 1
-      ? `Map showing your location and ${posts.length} nearby Community Health Posts`
-      : `Map showing your location and the route to ${posts[0]?.name ?? 'the nearest post'}`;
+    totalPosts > 0
+      ? `Map showing your location and ${labelParts.join(' and ')}`
+      : 'Map showing your location';
 
   return (
     <div className="map-container" role="img" aria-label={label}>
@@ -72,7 +92,7 @@ export default function MapView({ userLocation, posts }: MapViewProps) {
         center={[userLocation.lat, userLocation.lng]}
         zoom={15}
         scrollWheelZoom={false}
-        style={{ height: '320px', width: '100%', borderRadius: '12px' }}
+        style={{ height: '360px', width: '100%', borderRadius: '12px' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -81,16 +101,24 @@ export default function MapView({ userLocation, posts }: MapViewProps) {
         <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
           <Popup>Your postal code</Popup>
         </Marker>
-        {posts.map((post, index) => (
-          <Marker key={post.id} position={[post.lat, post.lng]} icon={rankIcon(index)}>
-            <Popup>
-              {post.name}
-              <br />
-              {post.distanceKm.toFixed(2)} km away
-            </Popup>
-          </Marker>
-        ))}
-        <FitBounds userLocation={userLocation} posts={posts} />
+        {categories.map((category) =>
+          category.posts.map((post, index) => (
+            <Marker
+              key={`${category.key}-${post.id}`}
+              position={[post.lat, post.lng]}
+              icon={rankIcon(index, category.primaryColor, category.alternateColor, category.shape)}
+            >
+              <Popup>
+                <strong>{category.categoryLabel}</strong>
+                <br />
+                {post.name}
+                <br />
+                {post.distanceKm.toFixed(2)} km away
+              </Popup>
+            </Marker>
+          ))
+        )}
+        <FitBounds userLocation={userLocation} categories={categories} />
       </MapContainer>
     </div>
   );
