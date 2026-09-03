@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Nearest Community Health Posts and Active Ageing Centres',
+  title: 'East Site: Nearest Community Health Posts and Active Ageing Centres',
   description: 'Find the nearest Community Health Post and Active Ageing Centre in Singapore by postal code.',
 };
 

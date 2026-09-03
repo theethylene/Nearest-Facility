@@ -62,7 +62,7 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Nearest Community Health Posts and Active Ageing Centres</h1>
+      <h1>East Site: Nearest Community Health Posts and Active Ageing Centres</h1>
       <p className="intro">
         Enter your 6-digit Singapore postal code to find the closest Community Health Post and Active Ageing Centre.
       </p>
