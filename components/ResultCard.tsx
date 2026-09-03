@@ -21,6 +21,36 @@ const RANK_LABEL: Record<number, string> = {
   2: '3rd closest',
 };
 
+// Small line icons (no emoji, per house style) distinguishing the two
+// facility categories at a glance: a cross-in-circle for Community Health
+// Posts, two figures for Active Ageing Centres. Both use currentColor so
+// the surrounding CSS (result-card__icon) controls the actual color per
+// category/rank.
+function ChpIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AacIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="9" cy="8" r="2.6" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 18c0-2.8 2.2-4.6 5-4.6s5 1.8 5 4.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="17" cy="9" r="2.1" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M14.7 13.8c.9-.6 2-.9 2.3-.9 2.3 0 4 1.5 4 3.9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function ResultCard({ post, rank, category = 'chp' }: ResultCardProps) {
   const isPrimary = rank === 0;
   const headingId = `result-heading-${category}-${post.id}`;
@@ -34,7 +64,10 @@ export default function ResultCard({ post, rank, category = 'chp' }: ResultCardP
   return (
     <section className={classNames} aria-labelledby={headingId}>
       <span className="result-card__badge">{RANK_LABEL[rank] ?? `#${rank + 1}`}</span>
-      <h2 id={headingId}>{post.name}</h2>
+      <div className="result-card__title-row">
+        <span className="result-card__icon">{category === 'aac' ? <AacIcon /> : <ChpIcon />}</span>
+        <h2 id={headingId}>{post.name}</h2>
+      </div>
 
       {/* Plain-text alternative to the map, so every result is fully usable
           without relying on the visual map. */}
