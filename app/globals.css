@@ -87,17 +87,25 @@ input:focus-visible {
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: linear-gradient(135deg, var(--brand-green), var(--brand-blue));
+  /* A near-white badge instead of the green/blue gradient the mark used to
+     share with the topbar background: once the topbar itself became a
+     green-to-blue gradient (see the topbar recolor above), that gradient
+     mark had only ~1.4:1 contrast against it and nearly disappeared. A
+     light, near-solid background reads as a distinct badge against any
+     topbar color. */
+  background: #f4f8f6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   flex-shrink: 0;
 }
 
 /* A simple CSS-only cross mark (no emoji, no image asset) evoking a health
-   post/first-aid symbol. */
+   post/first-aid symbol. Colored (not white) now that the badge itself is
+   light, so the cross stays visible against its own background. */
 .topbar__mark::before,
 .topbar__mark::after {
   content: '';
   position: absolute;
-  background: #fff;
+  background: var(--brand-green-dark);
   border-radius: 1px;
 }
 
