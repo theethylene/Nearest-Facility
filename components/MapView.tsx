@@ -69,9 +69,20 @@ export type MarkerCategory = {
 };
 
 type MapViewProps = {
-  userLocation: LatLng;
+  // Nullable so the map panel can stay mounted and visible before a search
+  // has been run (see the default view below) rather than being replaced by
+  // a placeholder box, matching the persistent, always-present map treatment
+  // requested for the redesign.
+  userLocation: LatLng | null;
   categories: MarkerCategory[];
 };
+
+// Centre of Singapore, used as the default view before any search has been
+// made. Chosen purely as a sensible idle framing, not tied to any real
+// result.
+const DEFAULT_CENTER: LatLng = { lat: 1.3521, lng: 103.8198 };
+const DEFAULT_ZOOM = 12;
+const RESULT_ZOOM = 15;
 
 // Two result pins whose real-world locations are this close (in metres) are
 // treated as "the same spot" for display purposes — e.g. a Community Health
@@ -172,28 +183,32 @@ export default function MapView({ userLocation, categories }: MapViewProps) {
   const labelParts = categories
     .filter((category) => category.posts.length > 0)
     .map((category) => `${category.posts.length} nearby ${category.categoryLabel}`);
-  const label =
-    totalPosts > 0
+  const label = userLocation
+    ? totalPosts > 0
       ? `Map showing your location and ${labelParts.join(' and ')}`
-      : 'Map showing your location';
+      : 'Map showing your location'
+    : 'Map of Singapore. Search a postal code to plot your nearest results.';
 
   const markerOffsets = layoutOverlappingMarkers(categories);
+  const center = userLocation ?? DEFAULT_CENTER;
 
   return (
     <div className="map-container" role="img" aria-label={label}>
       <MapContainer
-        center={[userLocation.lat, userLocation.lng]}
-        zoom={15}
+        center={[center.lat, center.lng]}
+        zoom={userLocation ? RESULT_ZOOM : DEFAULT_ZOOM}
         scrollWheelZoom={false}
-        style={{ height: '360px', width: '100%', borderRadius: '12px' }}
+        style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
-          <Popup>Your postal code</Popup>
-        </Marker>
+        {userLocation && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+            <Popup>Your postal code</Popup>
+          </Marker>
+        )}
         {categories.map((category) =>
           category.posts.map((post, index) => {
             const markerKey = `${category.key}-${post.id}`;
@@ -215,7 +230,7 @@ export default function MapView({ userLocation, categories }: MapViewProps) {
             );
           })
         )}
-        <FitBounds userLocation={userLocation} categories={categories} />
+        {userLocation && <FitBounds userLocation={userLocation} categories={categories} />}
       </MapContainer>
     </div>
   );

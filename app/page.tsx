@@ -59,95 +59,119 @@ export default function Home() {
 
   const hasChpResults = Boolean(result && result.results.length > 0);
   const hasAacResults = Boolean(result && result.aacResults.length > 0);
+  const hasAnyResults = hasChpResults || hasAacResults;
+
+  // The map panel stays mounted at all times (see MapView's default
+  // Singapore-centred view) rather than only appearing after a search, so
+  // categories default to empty arrays until there's something to plot.
+  const mapCategories = result
+    ? [
+        {
+          key: 'chp',
+          categoryLabel: 'Community Health Posts',
+          primaryColor: '#1f7a4d',
+          alternateColor: '#6b7280',
+          shape: 'circle' as const,
+          posts: result.results.map((post) => ({
+            id: post.id,
+            name: post.name,
+            distanceKm: post.distanceKm,
+            lat: post.latitude,
+            lng: post.longitude,
+          })),
+        },
+        {
+          key: 'aac',
+          categoryLabel: 'Active Ageing Centres',
+          primaryColor: '#1d5fae',
+          alternateColor: '#7a8ba3',
+          shape: 'diamond' as const,
+          posts: result.aacResults.map((post) => ({
+            id: post.id,
+            name: post.name,
+            distanceKm: post.distanceKm,
+            lat: post.latitude,
+            lng: post.longitude,
+          })),
+        },
+      ]
+    : [];
 
   return (
-    <main>
-      <h1>East Site: Nearest Community Health Posts and Active Ageing Centres</h1>
-      <p className="intro">
-        Enter your 6-digit Singapore postal code to find the closest Community Health Post and Active Ageing Centre.
-      </p>
+    <div className="page">
+      <header className="topbar">
+        <span className="topbar__mark" aria-hidden="true" />
+        <div className="topbar__text">
+          <p className="topbar__eyebrow">East Site</p>
+          <h1 className="topbar__title">Nearest Community Health Posts and Active Ageing Centres</h1>
+        </div>
+      </header>
 
-      <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
+      <main className="layout">
+        <div className="layout__primary">
+          <p className="intro">
+            Enter your 6-digit Singapore postal code to find the closest Community Health Post and Active Ageing
+            Centre.
+          </p>
 
-      {result && (hasChpResults || hasAacResults) && (
-        <>
-          {hasChpResults && (
-            <div className="results-section">
-              <h2 className="section-heading">Nearest Community Health Posts</h2>
-              <div className="results-list">
-                {result.results.map((post, index) => (
-                  <ResultCard key={post.id} post={post} rank={index} category="chp" />
-                ))}
-              </div>
-            </div>
+          <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
+
+          {result && hasAnyResults && (
+            <>
+              {hasChpResults && (
+                <div className="results-section">
+                  <h2 className="section-heading">Nearest Community Health Posts</h2>
+                  <div className="results-list">
+                    {result.results.map((post, index) => (
+                      <ResultCard key={post.id} post={post} rank={index} category="chp" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {hasAacResults && (
+                <div className="results-section">
+                  <h2 className="section-heading">Nearest Active Ageing Centres</h2>
+                  <p className="section-subheading">Community programmes and support services for seniors.</p>
+                  <div className="results-list">
+                    {result.aacResults.map((post, index) => (
+                      <ResultCard key={post.id} post={post} rank={index} category="aac" />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
+        </div>
 
-          {hasAacResults && (
-            <div className="results-section">
-              <h2 className="section-heading">Nearest Active Ageing Centres</h2>
-              <p className="section-subheading">Community programmes and support services for seniors.</p>
-              <div className="results-list">
-                {result.aacResults.map((post, index) => (
-                  <ResultCard key={post.id} post={post} rank={index} category="aac" />
-                ))}
-              </div>
-            </div>
-          )}
-
+        <aside className="layout__map-panel">
           <MapView
-            userLocation={{ lat: result.userLocation.latitude, lng: result.userLocation.longitude }}
-            categories={[
-              {
-                key: 'chp',
-                categoryLabel: 'Community Health Posts',
-                primaryColor: '#1f7a4d',
-                alternateColor: '#6b7280',
-                shape: 'circle',
-                posts: result.results.map((post) => ({
-                  id: post.id,
-                  name: post.name,
-                  distanceKm: post.distanceKm,
-                  lat: post.latitude,
-                  lng: post.longitude,
-                })),
-              },
-              {
-                key: 'aac',
-                categoryLabel: 'Active Ageing Centres',
-                primaryColor: '#1d5fae',
-                alternateColor: '#7a8ba3',
-                shape: 'diamond',
-                posts: result.aacResults.map((post) => ({
-                  id: post.id,
-                  name: post.name,
-                  distanceKm: post.distanceKm,
-                  lat: post.latitude,
-                  lng: post.longitude,
-                })),
-              },
-            ]}
+            userLocation={result ? { lat: result.userLocation.latitude, lng: result.userLocation.longitude } : null}
+            categories={mapCategories}
           />
 
-          <div className="map-legend">
-            <span className="map-legend__item">
-              <span className="map-legend__swatch map-legend__swatch--circle" style={{ background: '#1f7a4d' }} />
-              Community Health Post (nearest)
-            </span>
-            <span className="map-legend__item">
-              <span className="map-legend__swatch map-legend__swatch--circle" style={{ background: '#6b7280' }} />
-              Community Health Post (alternate)
-            </span>
-            <span className="map-legend__item">
-              <span className="map-legend__swatch map-legend__swatch--diamond" style={{ background: '#1d5fae' }} />
-              Active Ageing Centre (nearest)
-            </span>
-            <span className="map-legend__item">
-              <span className="map-legend__swatch map-legend__swatch--diamond" style={{ background: '#7a8ba3' }} />
-              Active Ageing Centre (alternate)
-            </span>
-          </div>
-        </>
-      )}
+          {result && hasAnyResults && (
+            <div className="map-legend">
+              <span className="map-legend__item">
+                <span className="map-legend__swatch map-legend__swatch--circle" style={{ background: '#1f7a4d' }} />
+                Community Health Post (nearest)
+              </span>
+              <span className="map-legend__item">
+                <span className="map-legend__swatch map-legend__swatch--circle" style={{ background: '#6b7280' }} />
+                Community Health Post (alternate)
+              </span>
+              <span className="map-legend__item">
+                <span className="map-legend__swatch map-legend__swatch--diamond" style={{ background: '#1d5fae' }} />
+                Active Ageing Centre (nearest)
+              </span>
+              <span className="map-legend__item">
+                <span className="map-legend__swatch map-legend__swatch--diamond" style={{ background: '#7a8ba3' }} />
+                Active Ageing Centre (alternate)
+              </span>
+            </div>
+          )}
+        </aside>
+      </main>
 
       <footer className="disclaimer">
         <p>For use by CGH HSG Team only.</p>
@@ -156,6 +180,6 @@ export default function Home() {
           real-life path barriers.
         </p>
       </footer>
-    </main>
+    </div>
   );
 }
