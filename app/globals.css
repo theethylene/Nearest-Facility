@@ -444,6 +444,11 @@ form label {
   margin: 0.25rem 0;
 }
 
+.disclaimer__label {
+  font-weight: 600;
+  color: #666;
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;

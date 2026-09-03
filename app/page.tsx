@@ -110,8 +110,8 @@ export default function Home() {
       <main className="layout">
         <div className="layout__primary">
           <p className="intro">
-            Enter your 6-digit Singapore postal code to find the closest Community Health Post and Active Ageing
-            Centre.
+            Enter your 6-digit Singapore postal code to find the closest Community Health Posts and Active Ageing
+            Centres.
           </p>
 
           <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
@@ -174,7 +174,9 @@ export default function Home() {
       </main>
 
       <footer className="disclaimer">
-        <p>For use by CGH HSG Team only.</p>
+        <p>Correct as of Aug 2026</p>
+        <p className="disclaimer__label">Disclaimers:</p>
+        <p>For use by CGH HSG Team only, in the Eastern Area.</p>
         <p>
           Straight-line distance is used as a guide. Please consider factors such as actual road distance and
           real-life path barriers.
