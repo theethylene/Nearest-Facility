@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import PostalCodeForm from '@/components/PostalCodeForm';
-import ResultCard, { type NearestPost } from '@/components/ResultCard';
+import ResultCard, { ChpIcon, AacIcon, type NearestPost } from '@/components/ResultCard';
 
 // Leaflet touches `window`, so the map can only render on the client.
 // next/dynamic with ssr:false keeps it out of the server-rendered HTML.
@@ -162,8 +162,13 @@ export default function Home() {
           {result && hasAnyResults && (
             <>
               {hasChpResults && (
-                <div className="results-section">
-                  <h2 className="section-heading">Nearest Community Health Posts</h2>
+                <div className="results-section results-section--chp">
+                  <h2 className="section-heading">
+                    <span className="section-heading__icon" aria-hidden="true">
+                      <ChpIcon />
+                    </span>
+                    Nearest Community Health Posts
+                  </h2>
                   <div className="results-list">
                     {result.results.map((post, index) => (
                       <ResultCard key={post.id} post={post} rank={index} category="chp" />
@@ -173,8 +178,13 @@ export default function Home() {
               )}
 
               {hasAacResults && (
-                <div className="results-section">
-                  <h2 className="section-heading">Nearest Active Ageing Centres</h2>
+                <div className="results-section results-section--aac">
+                  <h2 className="section-heading">
+                    <span className="section-heading__icon" aria-hidden="true">
+                      <AacIcon />
+                    </span>
+                    Nearest Active Ageing Centres
+                  </h2>
                   <p className="section-subheading">Community programmes and support services for seniors.</p>
                   <div className="results-list">
                     {result.aacResults.map((post, index) => (

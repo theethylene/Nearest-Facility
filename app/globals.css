@@ -333,17 +333,51 @@ form label {
 
 /* Results list */
 
+/* Each results section gets its own tinted panel (background + border) in
+   its category's brand color, with the section heading, icon and card
+   accents all matching — so the whole Community Health Posts block reads
+   green and the whole Active Ageing Centres block reads blue, not just a
+   small accent on each card. */
 .results-section {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.25rem 1.35rem;
+  border-radius: 16px;
+  border: 1px solid transparent;
+}
+
+.results-section--chp {
+  background: rgba(31, 122, 77, 0.06);
+  border-color: rgba(31, 122, 77, 0.16);
+}
+
+.results-section--aac {
+  background: rgba(29, 95, 174, 0.06);
+  border-color: rgba(29, 95, 174, 0.16);
 }
 
 .section-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0 0 0.25rem;
   font-family: var(--font-display), sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   text-align: left;
+}
+
+.results-section--chp .section-heading {
+  color: var(--brand-green-dark);
+}
+
+.results-section--aac .section-heading {
+  color: var(--brand-blue-dark);
+}
+
+.section-heading__icon {
+  display: flex;
+  flex-shrink: 0;
 }
 
 .section-subheading {

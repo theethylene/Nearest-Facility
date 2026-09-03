@@ -24,9 +24,10 @@ const RANK_LABEL: Record<number, string> = {
 // Small line icons (no emoji, per house style) distinguishing the two
 // facility categories at a glance: a cross-in-circle for Community Health
 // Posts, two figures for Active Ageing Centres. Both use currentColor so
-// the surrounding CSS (result-card__icon) controls the actual color per
-// category/rank.
-function ChpIcon() {
+// the surrounding CSS controls the actual color — used both on individual
+// result cards here and on the section heading in app/page.tsx (exported
+// for that reuse).
+export function ChpIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
@@ -35,7 +36,7 @@ function ChpIcon() {
   );
 }
 
-function AacIcon() {
+export function AacIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle cx="9" cy="8" r="2.6" stroke="currentColor" strokeWidth="1.6" />
