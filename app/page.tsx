@@ -114,27 +114,6 @@ export default function Home() {
             Centres.
           </p>
 
-          {/* Idle-state content: real coverage numbers plus a short
-              walkthrough, so this column carries useful information before
-              a search rather than sitting mostly blank. Hidden once a
-              search has produced a result. */}
-          {!result && (
-            <div className="stats-strip">
-              <div className="stat">
-                <span className="stat__value">150</span>
-                <span className="stat__label">Community Health Posts</span>
-              </div>
-              <div className="stat">
-                <span className="stat__value">39</span>
-                <span className="stat__label">Active Ageing Centres</span>
-              </div>
-              <div className="stat">
-                <span className="stat__value">Eastern</span>
-                <span className="stat__label">Area covered</span>
-              </div>
-            </div>
-          )}
-
           <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
 
           <p className="note">

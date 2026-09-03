@@ -172,45 +172,9 @@ input:focus-visible {
   margin-bottom: 1.5rem;
 }
 
-/* Idle-state content: real coverage numbers plus a short walkthrough, so
-   the left column carries useful, accurate information before a search
-   rather than sitting mostly blank. Both blocks disappear once results
-   are showing. */
-.stats-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 0 0 1.75rem;
-}
-
-.stat {
-  flex: 1 1 120px;
-  padding: 0.9rem 1rem;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 14px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-}
-
-.stat__value {
-  display: block;
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--brand-green);
-  background: var(--brand-gradient);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.stat__label {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.78rem;
-  color: #475569;
-}
-
+/* Idle-state content: a short walkthrough, so the left column carries
+   useful information before a search rather than sitting mostly blank.
+   Disappears once results are showing. */
 .how-it-works {
   list-style: none;
   margin: 1.75rem 0 0.5rem;
