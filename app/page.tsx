@@ -152,8 +152,8 @@ export default function Home() {
       <footer className="disclaimer">
         <p>For use by CGH HSG Team only.</p>
         <p>
-          Straight line distance are used as a guide. Please consider factors such as actual road distance and path
-          barriers.
+          Straight-line distance is used as a guide. Please consider factors such as actual road distance and
+          real-life path barriers.
         </p>
       </footer>
     </main>
