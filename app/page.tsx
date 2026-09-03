@@ -137,6 +137,11 @@ export default function Home() {
 
           <PostalCodeForm onSearch={handleSearch} loading={loading} errorMessage={errorMessage} />
 
+          <p className="note">
+            Straight-line distance is used as a guide. Please consider factors such as actual road distance and
+            real-life path barriers.
+          </p>
+
           {!result && (
             <ol className="how-it-works">
               <li>
@@ -212,13 +217,9 @@ export default function Home() {
       </main>
 
       <footer className="disclaimer">
-        <p>Correct as of Aug 2026</p>
         <p className="disclaimer__label">Disclaimers:</p>
+        <p>Correct as of Aug 2026</p>
         <p>For use by CGH HSG Team only, in the Eastern Area.</p>
-        <p>
-          Straight-line distance is used as a guide. Please consider factors such as actual road distance and
-          real-life path barriers.
-        </p>
       </footer>
     </div>
   );

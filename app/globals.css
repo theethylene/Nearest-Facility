@@ -259,9 +259,11 @@ input:focus-visible {
 }
 
 .note {
-  margin-top: 2rem;
-  font-size: 0.875rem;
-  color: #666;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #475569;
 }
 
 /* Postal-code form */
@@ -666,7 +668,7 @@ form label {
   margin-top: 3rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e5e5;
-  font-size: 0.75rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: #64748b;
 }
